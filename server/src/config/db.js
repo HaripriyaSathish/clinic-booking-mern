@@ -1,14 +1,20 @@
-const mysql = require('mysql2/promise');
+// DATABASE_URL set (Render + Neon) -> Postgres; otherwise local MySQL from DB_* vars
+if (process.env.DATABASE_URL) {
+  module.exports = require('./pgPool');
+} else {
+  const mysql = require('mysql2/promise');
 
-const pool = mysql.createPool({
-  host: process.env.DB_HOST,
-  port: process.env.DB_PORT || 3306,
-  user: process.env.DB_USER,
-  password: process.env.DB_PASSWORD,
-  database: process.env.DB_NAME,
-  waitForConnections: true,
-  connectionLimit: 10,
-  dateStrings: true,
-});
+  const pool = mysql.createPool({
+    host: process.env.DB_HOST,
+    port: process.env.DB_PORT || 3306,
+    user: process.env.DB_USER,
+    password: process.env.DB_PASSWORD,
+    database: process.env.DB_NAME,
+    waitForConnections: true,
+    connectionLimit: 10,
+    dateStrings: true,
+  });
+  pool.dialect = 'mysql';
 
-module.exports = pool;
+  module.exports = pool;
+}

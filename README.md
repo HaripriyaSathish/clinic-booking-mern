@@ -22,3 +22,14 @@ To restore the original design copy: `npm run seed:content --prefix server -- --
 The Book Appointment form emails the clinic (Admin → Navbar & Site Settings → Clinic email) and,
 if the patient entered an email, sends them a confirmation. Set `SMTP_USER` and `SMTP_PASS` in
 `server/.env` (for Gmail use an App Password). Without them bookings are still saved, but no email is sent.
+
+## Deploy (Render + Neon Postgres)
+Locally the server uses MySQL (`DB_*` in `server/.env`). When `DATABASE_URL` is set it uses Postgres instead,
+so on Render you only add `DATABASE_URL` (Neon) to the environment. Express also serves the built React app,
+so the whole site is one Render Web Service.
+
+- Postgres schema: `server/database/postgres_schema.sql`
+- Copy local MySQL data into Neon (creates the tables too):
+  `PG_URL="postgresql://..." npm run db:copy-to-postgres --prefix server` (add `-- --reset` to replace existing tables)
+- Render build command: `npm install --prefix server && npm install --prefix client --include=dev && npm run build`
+- Render start command: `npm start`

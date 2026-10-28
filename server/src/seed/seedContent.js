@@ -194,6 +194,7 @@ const ensureSectionTable = () =>
   )`);
 
 const ensureHeroColumns = async () => {
+  if (pool.dialect !== 'mysql') return;
   const [cols] = await pool.query(
     `SELECT COLUMN_NAME FROM information_schema.COLUMNS
      WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'hero_section' AND COLUMN_NAME IN ('info_title','info_text')`
@@ -239,7 +240,7 @@ const seedSingle = async (table, data) => {
       console.log('stats:         already set');
     }
 
-    await ensureSectionTable();
+    if (pool.dialect === 'mysql') await ensureSectionTable();
     for (const [key, data] of Object.entries(sections)) {
       const [[existing]] = await pool.query('SELECT section_key FROM section_content WHERE section_key = ?', [key]);
       if (!existing) await pool.query('INSERT INTO section_content SET ?', [{ section_key: key, ...data }]);
@@ -267,7 +268,7 @@ const seedSingle = async (table, data) => {
       else if (reset) await pool.query('UPDATE doctors SET ? WHERE id = ?', [row, id]);
       // Seed photo only fills an empty slot — never replaces one uploaded from the admin panel
       if (existing && !reset && row.photo_url) {
-        await pool.query('UPDATE doctors SET photo_url = ? WHERE id = ? AND (photo_url IS NULL OR photo_url = "")', [row.photo_url, id]);
+        await pool.query("UPDATE doctors SET photo_url = ? WHERE id = ? AND (photo_url IS NULL OR photo_url = '')", [row.photo_url, id]);
       }
       if (!existing || reset) {
         await pool.query('DELETE FROM doctor_schedules WHERE doctor_id = ?', [id]);
@@ -287,7 +288,7 @@ const seedSingle = async (table, data) => {
       return 'created';
     };
 
-    const [noteCol] = await pool.query(
+    const [noteCol] = pool.dialect !== 'mysql' ? [[true]] : await pool.query(
       `SELECT 1 FROM information_schema.COLUMNS
        WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'clinic_timings' AND COLUMN_NAME = 'note'`
     );

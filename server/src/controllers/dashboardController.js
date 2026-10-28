@@ -11,10 +11,10 @@ exports.stats = async (req, res, next) => {
     const [counts, team, unread, trend, byStatus, topDepartments, recent] = await Promise.all([
       one(
         `SELECT COUNT(*) AS total,
-                SUM(appointment_date = CURDATE()) AS today,
-                SUM(status = 'Pending') AS pending,
-                SUM(appointment_date >= CURDATE() AND status IN ('Pending','Confirmed')) AS upcoming,
-                SUM(DATE(created_at) >= CURDATE() - INTERVAL 6 DAY) AS this_week
+                SUM(CASE WHEN appointment_date = CURRENT_DATE THEN 1 ELSE 0 END) AS today,
+                SUM(CASE WHEN status = 'Pending' THEN 1 ELSE 0 END) AS pending,
+                SUM(CASE WHEN appointment_date >= CURRENT_DATE AND status IN ('Pending','Confirmed') THEN 1 ELSE 0 END) AS upcoming,
+                SUM(CASE WHEN CAST(created_at AS DATE) >= CURRENT_DATE - INTERVAL '6' DAY THEN 1 ELSE 0 END) AS this_week
          FROM appointments`
       ),
       one(
@@ -23,16 +23,16 @@ exports.stats = async (req, res, next) => {
       ),
       one('SELECT COUNT(*) AS unread FROM contact_messages WHERE is_read = 0'),
       pool.query(
-        `SELECT DATE_FORMAT(DATE(created_at), '%Y-%m-%d') AS day, COUNT(*) AS count
+        `SELECT CAST(created_at AS DATE) AS day, COUNT(*) AS count
          FROM appointments
-         WHERE created_at >= CURDATE() - INTERVAL 13 DAY
-         GROUP BY day`
+         WHERE created_at >= CURRENT_DATE - INTERVAL '13' DAY
+         GROUP BY CAST(created_at AS DATE)`
       ).then(([rows]) => rows),
       pool.query('SELECT status, COUNT(*) AS count FROM appointments GROUP BY status').then(([rows]) => rows),
       pool.query(
         `SELECT dep.name, COUNT(*) AS count
          FROM appointments a JOIN departments dep ON dep.id = a.department_id
-         GROUP BY dep.id ORDER BY count DESC LIMIT 5`
+         GROUP BY dep.id, dep.name ORDER BY count DESC LIMIT 5`
       ).then(([rows]) => rows),
       pool.query(
         `SELECT a.id, a.booking_ref, a.patient_name, a.phone, a.appointment_date, a.appointment_time,

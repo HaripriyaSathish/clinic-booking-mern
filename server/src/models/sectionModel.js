@@ -14,10 +14,8 @@ const get = async (key) => {
 };
 
 const save = async (key, data) => {
-  await pool.query(
-    'INSERT INTO section_content SET ? ON DUPLICATE KEY UPDATE ?',
-    [{ section_key: key, ...data }, data]
-  );
+  if (await get(key)) await pool.query('UPDATE section_content SET ? WHERE section_key = ?', [data, key]);
+  else await pool.query('INSERT INTO section_content SET ?', [{ section_key: key, ...data }]);
   return get(key);
 };
 

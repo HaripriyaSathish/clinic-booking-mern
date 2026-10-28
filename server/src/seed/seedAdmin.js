@@ -11,10 +11,10 @@ const pool = require('../config/db');
     const email = process.env.ADMIN_EMAIL || `${username}@admin.local`;
 
     // Older databases were created without a username column
-    const [cols] = await pool.query(
+    const [cols] = pool.dialect === 'mysql' ? await pool.query(
       `SELECT COLUMN_NAME FROM information_schema.COLUMNS
        WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'admins' AND COLUMN_NAME = 'username'`
-    );
+    ) : [[true]];
     if (!cols.length) {
       await pool.query('ALTER TABLE admins ADD COLUMN username VARCHAR(60) NULL UNIQUE AFTER name');
     }

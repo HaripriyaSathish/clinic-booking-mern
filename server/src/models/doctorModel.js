@@ -19,7 +19,7 @@ const withSchedules = async (doctors, { activeOnly = true } = {}) => {
     `SELECT id, doctor_id, day_of_week, start_time, end_time, slot_minutes, max_patients, is_active
      FROM doctor_schedules
      WHERE doctor_id IN (?) ${activeOnly ? 'AND is_active = 1' : ''}
-     ORDER BY FIELD(day_of_week, ${DAYS.map((d) => `'${d}'`).join(',')}), start_time`,
+     ORDER BY CASE day_of_week ${DAYS.map((d, i) => `WHEN '${d}' THEN ${i}`).join(' ')} END, start_time`,
     [doctors.map((d) => d.id)]
   );
   return doctors.map((d) => ({ ...d, schedules: rows.filter((r) => r.doctor_id === d.id) }));

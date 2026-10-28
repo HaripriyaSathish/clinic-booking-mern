@@ -7,10 +7,10 @@ const PORT = process.env.PORT || 5000;
 pool.getConnection()
   .then((conn) => {
     conn.release();
-    console.log('MySQL connected');
+    console.log(`${pool.dialect === 'postgres' ? 'Postgres' : 'MySQL'} connected`);
     app.listen(PORT, () => console.log(`Server running on http://localhost:${PORT}`));
   })
   .catch((err) => {
-    console.error('MySQL connection failed:', err.message);
+    console.error('Database connection failed:', err.message);
     process.exit(1);
   });
