@@ -1,0 +1,31 @@
+/* Brand tokens — shared by the website and the admin panel */
+:root {
+  --color-primary: #0d4f3a;
+  --color-primary-dark: #093a2b;
+  --color-primary-soft: #e3ece4;
+  --color-accent: #c9a24a;
+  --color-accent-soft: #e9dcb5;
+  --color-bg: #f7f5ec;
+  --color-surface: #fbfaf5;
+  --color-border: #e7e1cf;
+  --color-heading: #0e3b2e;
+  --color-text: #1f2d27;
+  --color-muted: #5f6b66;
+  --color-white: #ffffff;
+  --color-danger: #b42318;
+
+  --font-heading: 'Fraunces', Georgia, serif;
+  --font-body: 'Fira Sans', system-ui, sans-serif;
+
+  --radius-sm: 8px;
+  --radius-md: 16px;
+  --radius-lg: 32px;
+  --radius-xl: 44px;
+  --radius-pill: 999px;
+
+  --container: 1240px;
+  --nav-height: 72px;
+  --shadow: 0 10px 30px rgba(14, 59, 46, 0.08);
+  --shadow-lg: 0 30px 60px -20px rgba(14, 59, 46, 0.35);
+  --ease: cubic-bezier(0.22, 1, 0.36, 1);
+}
