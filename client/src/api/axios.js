@@ -1,6 +1,7 @@
 import axios from 'axios';
 
-const api = axios.create({ baseURL: import.meta.env.VITE_API_URL });
+// Defaults to /api (same server) when VITE_API_URL isn't set, e.g. on Render
+const api = axios.create({ baseURL: import.meta.env.VITE_API_URL || '/api' });
 
 api.interceptors.request.use((config) => {
   const token = localStorage.getItem('adminToken');
